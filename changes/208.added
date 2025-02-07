@@ -1,0 +1,1 @@
+Enable top-level list merging from included templates. Objects of the same content type can now be included in multiple design files, and their lists will be merged together.
