@@ -2,9 +2,10 @@
 
 import copy
 from unittest.mock import patch, Mock, ANY, MagicMock
-
+from pprint import pprint
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+import yaml
 
 from nautobot.dcim.models import Location, LocationType, Manufacturer, DeviceType, Device
 from nautobot.ipam.models import VRF, Prefix, IPAddress
@@ -170,6 +171,27 @@ class TestDesignJob(DesignTestCase):
 
         self.assertEqual(ChangeRecord.objects.count(), 8)
         self.assertTrue(ChangeRecord.objects.filter_by_design_object_id(Device.objects.first().pk).exists())
+
+    def test_top_level_list_merge_from_included_templates(self):
+        """Test that top-level lists in templates loaded via include statements are properly merged."""
+        job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
+        rendered = job.render(self.data, test_designs.SimpleDesignIncludeMerge.Meta.design_file)
+        merged_yaml = yaml.safe_load(rendered)
+        pprint(merged_yaml)
+
+        self.assertDictEqual(
+            merged_yaml,
+            {
+                "manufacturers": [
+                    {"name": "Test Manufacturer"},
+                    {"!create:name": "Test Manufacturer Explicit !create"},
+                    {"!create_or_update:name": "Test Manufacturer", "description": "Test description"},
+                ],
+                "device_types": [
+                    {"!create:model": "Test Model", "manufacturer__name": "Test Manufacturer"}
+                ],
+            }
+        )
 
 
 class TestDesignJobLogging(DesignTestCase):

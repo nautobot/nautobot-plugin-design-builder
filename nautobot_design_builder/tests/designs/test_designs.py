@@ -216,6 +216,15 @@ class IntegrationDesign(DesignJob):
         description = "Connect via a direct cable two network devices using a P2P network."
 
 
+
+class SimpleDesignIncludeMerge(DesignJob):
+    """Design job that tests merging of top-level keys in included templates."""
+
+    class Meta:
+        name = "Design with Includes"
+        design_file = "templates/simple_design_with_include.yaml.j2"
+
+
 name = "Test Designs"  # pylint:disable=invalid-name
 
 register_jobs(
@@ -232,4 +241,5 @@ register_jobs(
     SimpleDesignDeploymentMode,
     SimpleDesignDeploymentModeMultipleObjects,
     SimpleDesignDeploymentModeUpdate,
+    SimpleDesignIncludeMerge,
 )
