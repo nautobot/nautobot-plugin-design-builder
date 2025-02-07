@@ -143,8 +143,6 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
     def _merge_top_level_lists(self, data1: dict, data2: dict) -> dict:
         """Merge top-level lists from two YAML data structures.
 
-        Pass an empty dict as data1 to merge any duplicate top-level lists present in data2.
-
         Args:
             data1 (dict): First YAML data structure
             data2 (dict): Second YAML data structure to merge into data1
