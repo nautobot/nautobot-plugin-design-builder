@@ -140,7 +140,7 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
             environment (Environment): The build environment that consumed the rendered design files. This is useful for accessing the design journal.
         """
 
-    def _merge_top_level_lists(self, data1: dict, data2: dict) -> dict:
+    def _merge_top_level_lists(self, data1: Dict, data2: Dict) -> Dict:
         """Merge top-level lists from two YAML data structures.
 
         Args:
