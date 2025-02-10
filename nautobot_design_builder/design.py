@@ -653,7 +653,6 @@ _OBJECT_TYPES_APP_FILTER = set(
     [
         "django_celery_beat",
         "admin",
-        "users",
         "django_rq",
         "auth",
         "taggit",
