@@ -1,7 +1,12 @@
 ---
-{% include 'templates/simple_design.yaml.j2' +%}
-{% include 'templates/simple_design_1.yaml.j2' +%}
+manufacturers:
+  - "!create_or_update:name": "Test Manufacturer"
 
+{% include 'templates/simple_design_included_1.yaml.j2' +%}
+{% include 'templates/simple_design_included_2.yaml.j2' +%}
+{% include 'templates/simple_design_included_3.yaml.j2' +%}
+
+---
 device_types:
-    - "!create:model": "Test Model"
+    - "!create_or_update:model": "Test Model 4"
       manufacturer__name: "Test Manufacturer"

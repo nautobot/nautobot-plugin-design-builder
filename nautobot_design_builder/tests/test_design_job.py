@@ -176,21 +176,19 @@ class TestDesignJob(DesignTestCase):
         """Test that top-level lists in templates loaded via include statements are properly merged."""
         job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
         job.run(dryrun=False, **self.data)
-
-        # Get the rendered YAML after job completes
-        rendered = job.rendered
+        rendered = job.render(self.data, test_designs.SimpleDesignIncludeMerge.Meta.design_file)
         merged_yaml = yaml.safe_load(rendered)
-
         self.assertDictEqual(
             merged_yaml,
             {
                 "manufacturers": [
-                    {"name": "Test Manufacturer"},
-                    {"!create:name": "Test Manufacturer Explicit !create"},
-                    {"!create_or_update:name": "Test Manufacturer", "description": "Test description"},
+                    {"!create_or_update:name": "Test Manufacturer"},
                 ],
                 "device_types": [
-                    {"!create:model": "Test Model", "manufacturer__name": "Test Manufacturer"}
+                    {"!create_or_update:model": "Test Model 1", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 2", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 3", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 4", "manufacturer__name": "Test Manufacturer"},
                 ],
             }
         )

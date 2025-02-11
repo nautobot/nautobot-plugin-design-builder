@@ -198,7 +198,7 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
                 if doc:  # skip empty documents
                     merged = self._merge_top_level_lists(merged, doc)
 
-            return yaml.dump(merged)
+            return yaml.dump(merged, sort_keys=False)
         except TemplateError as ex:
             info = sys.exc_info()[2]
             summary = traceback.extract_tb(info, -1)[0]
