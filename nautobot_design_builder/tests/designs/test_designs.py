@@ -225,6 +225,16 @@ class SimpleDesignIncludeMerge(DesignJob):
         design_file = "templates/simple_design_with_include.yaml.j2"
 
 
+class NestedDesignJob(DesignJob):
+    """Test job for nested template imports."""
+    
+    class Meta:
+        """Meta data for the job."""
+        name = "Nested Design"
+        design_file = "templates/nested_design_base.yaml.j2"
+        description = "Test nested template imports"
+
+
 name = "Test Designs"  # pylint:disable=invalid-name
 
 register_jobs(
@@ -242,4 +252,5 @@ register_jobs(
     SimpleDesignDeploymentModeMultipleObjects,
     SimpleDesignDeploymentModeUpdate,
     SimpleDesignIncludeMerge,
+    NestedDesignJob,
 )

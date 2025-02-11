@@ -1,0 +1,12 @@
+
+---
+location_types:
+  - "!create_or_update:name": "Site"
+manufacturers:
+  - "!create_or_update:name": "Base Manufacturer"
+device_types:
+  - "!create_or_update:model": "Base Model"
+    manufacturer__name: "Base Manufacturer" 
+
+---
+{% include 'templates/nested_design_level1.yaml.j2' +%}

@@ -1,0 +1,12 @@
+{% include 'templates/nested_design_level2.yaml.j2' +%}
+
+---
+manufacturers:
+  - "!create_or_update:name": "Level 1 Manufacturer"
+device_types:
+  - "!create_or_update:model": "Level 1 Model"
+    manufacturer__name: "Level 1 Manufacturer"
+locations:
+  - "!create_or_update:name": "Level 1 Location"
+    location_type__name: "Site"
+    status__name: "Active"

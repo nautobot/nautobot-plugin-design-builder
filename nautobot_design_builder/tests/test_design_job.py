@@ -193,6 +193,50 @@ class TestDesignJob(DesignTestCase):
             }
         )
 
+    def test_nested_template_imports(self):
+        """Test that templates with nested imports are properly merged."""
+        job = self.get_mocked_job(test_designs.NestedDesignJob)
+        job.run(dryrun=False, **self.data)
+        rendered = job.render(self.data, test_designs.NestedDesignJob.Meta.design_file)
+        merged_yaml = yaml.safe_load(rendered)
+
+        # Manufacturers
+        expected_manufacturers = [
+            {"!create_or_update:name": "Base Manufacturer"},
+            {"!create_or_update:name": "Level 1 Manufacturer"},
+            {"!create_or_update:name": "Level 2 Manufacturer"},
+        ]
+        self.assertEqual(len(merged_yaml["manufacturers"]), len(expected_manufacturers))
+        for mfg in expected_manufacturers:
+            self.assertIn(mfg, merged_yaml["manufacturers"])
+
+        # Device types
+        expected_device_types = [
+            {"!create_or_update:model": "Base Model", "manufacturer__name": "Base Manufacturer"},
+            {"!create_or_update:model": "Level 1 Model", "manufacturer__name": "Level 1 Manufacturer"},
+            {"!create_or_update:model": "Level 2 Model", "manufacturer__name": "Level 2 Manufacturer"},
+        ]
+        self.assertEqual(len(merged_yaml["device_types"]), len(expected_device_types))
+        for dev_type in expected_device_types:
+            self.assertIn(dev_type, merged_yaml["device_types"])
+
+        # Locations
+        expected_locations = [
+            {"!create_or_update:name": "Level 1 Location", "location_type__name": "Site", "status__name": "Active"},
+            {"!create_or_update:name": "Level 2 Location", "location_type__name": "Site", "status__name": "Active"},
+        ]
+        self.assertEqual(len(merged_yaml["locations"]), len(expected_locations))
+        for location in expected_locations:
+            self.assertIn(location, merged_yaml["locations"])
+
+        # Roles
+        expected_roles = [
+            {"!create_or_update:name": "Level 2 Role"},
+        ]
+        self.assertEqual(len(merged_yaml["roles"]), len(expected_roles))
+        for role in expected_roles:
+            self.assertIn(role, merged_yaml["roles"])
+
 
 class TestDesignJobLogging(DesignTestCase):
     """Test that the design job logs errors correctly."""
