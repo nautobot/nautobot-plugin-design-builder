@@ -140,6 +140,25 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
             environment (Environment): The build environment that consumed the rendered design files. This is useful for accessing the design journal.
         """
 
+    def _merge_top_level_lists(self, data1: Dict, data2: Dict) -> Dict:
+        """Merge top-level lists from two YAML data structures.
+
+        Args:
+            data1 (dict): First YAML data structure
+            data2 (dict): Second YAML data structure to merge into data1
+
+        Returns:
+            dict: Merged YAML data structure
+        """
+        merged = data1.copy()
+        for key, value in data2.items():
+            if key in merged:
+                if isinstance(merged[key], list) and isinstance(value, list):
+                    merged[key].extend(value)
+            else:
+                merged[key] = value
+        return merged
+
     def render(self, context: Context, filename: str) -> str:
         """High level function to render the Jinja design templates into YAML.
 
@@ -169,7 +188,17 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
         env = new_template_environment(context, search_paths)
 
         try:
-            return env.get_template(filename).render()
+            rendered = env.get_template(filename).render()
+            # split the rendered YAML into documents (separated by ---)
+            yaml_docs = yaml.safe_load_all(rendered)
+            
+            # merge top-level lists from each document
+            merged = {}
+            for doc in yaml_docs:
+                if doc:  # skip empty documents
+                    merged = self._merge_top_level_lists(merged, doc)
+
+            return yaml.dump(merged, sort_keys=False)
         except TemplateError as ex:
             info = sys.exc_info()[2]
             summary = traceback.extract_tb(info, -1)[0]
@@ -185,6 +214,7 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
         """
         self.rendered = self.render(context, design_file)
         design = yaml.safe_load(self.rendered)
+        self.logger.info(design)
         self.designs[design_file] = design
 
         # no need to save the rendered content if yaml loaded

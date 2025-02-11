@@ -5,6 +5,7 @@ from unittest.mock import patch, Mock, ANY, MagicMock
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+import yaml
 
 from nautobot.dcim.models import Location, LocationType, Manufacturer, DeviceType, Device
 from nautobot.ipam.models import VRF, Prefix, IPAddress
@@ -170,6 +171,71 @@ class TestDesignJob(DesignTestCase):
 
         self.assertEqual(ChangeRecord.objects.count(), 8)
         self.assertTrue(ChangeRecord.objects.filter_by_design_object_id(Device.objects.first().pk).exists())
+
+    def test_merge_from_included_templates(self):
+        """Test that top-level lists in templates loaded via include statements are properly merged."""
+        job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
+        job.run(dryrun=False, **self.data)
+        rendered = job.render(self.data, test_designs.SimpleDesignIncludeMerge.Meta.design_file)
+        merged_yaml = yaml.safe_load(rendered)
+        self.assertDictEqual(
+            merged_yaml,
+            {
+                "manufacturers": [
+                    {"!create_or_update:name": "Test Manufacturer"},
+                ],
+                "device_types": [
+                    {"!create_or_update:model": "Test Model 1", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 2", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 3", "manufacturer__name": "Test Manufacturer"},
+                    {"!create_or_update:model": "Test Model 4", "manufacturer__name": "Test Manufacturer"},
+                ],
+            }
+        )
+
+    def test_merge_from_nested_templates(self):
+        """Test that templates with nested imports are properly merged."""
+        job = self.get_mocked_job(test_designs.NestedDesignJob)
+        job.run(dryrun=False, **self.data)
+        rendered = job.render(self.data, test_designs.NestedDesignJob.Meta.design_file)
+        merged_yaml = yaml.safe_load(rendered)
+
+        # Manufacturers
+        expected_manufacturers = [
+            {"!create_or_update:name": "Base Manufacturer"},
+            {"!create_or_update:name": "Level 1 Manufacturer"},
+            {"!create_or_update:name": "Level 2 Manufacturer"},
+        ]
+        self.assertEqual(len(merged_yaml["manufacturers"]), len(expected_manufacturers))
+        for mfg in expected_manufacturers:
+            self.assertIn(mfg, merged_yaml["manufacturers"])
+
+        # Device types
+        expected_device_types = [
+            {"!create_or_update:model": "Base Model", "manufacturer__name": "Base Manufacturer"},
+            {"!create_or_update:model": "Level 1 Model", "manufacturer__name": "Level 1 Manufacturer"},
+            {"!create_or_update:model": "Level 2 Model", "manufacturer__name": "Level 2 Manufacturer"},
+        ]
+        self.assertEqual(len(merged_yaml["device_types"]), len(expected_device_types))
+        for dev_type in expected_device_types:
+            self.assertIn(dev_type, merged_yaml["device_types"])
+
+        # Locations
+        expected_locations = [
+            {"!create_or_update:name": "Level 1 Location", "location_type__name": "Site", "status__name": "Active"},
+            {"!create_or_update:name": "Level 2 Location", "location_type__name": "Site", "status__name": "Active"},
+        ]
+        self.assertEqual(len(merged_yaml["locations"]), len(expected_locations))
+        for location in expected_locations:
+            self.assertIn(location, merged_yaml["locations"])
+
+        # Roles
+        expected_roles = [
+            {"!create_or_update:name": "Level 2 Role"},
+        ]
+        self.assertEqual(len(merged_yaml["roles"]), len(expected_roles))
+        for role in expected_roles:
+            self.assertIn(role, merged_yaml["roles"])
 
 
 class TestDesignJobLogging(DesignTestCase):

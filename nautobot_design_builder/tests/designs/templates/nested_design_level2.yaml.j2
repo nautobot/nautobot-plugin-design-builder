@@ -1,0 +1,12 @@
+---
+manufacturers:
+  - "!create_or_update:name": "Level 2 Manufacturer"
+device_types:
+  - "!create_or_update:model": "Level 2 Model"
+    manufacturer__name: "Level 2 Manufacturer"
+locations:
+  - "!create_or_update:name": "Level 2 Location"
+    location_type__name: "Site"
+    status__name: "Active"
+roles:
+  - "!create_or_update:name": "Level 2 Role"
