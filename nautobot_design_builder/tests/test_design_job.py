@@ -172,7 +172,7 @@ class TestDesignJob(DesignTestCase):
         self.assertEqual(ChangeRecord.objects.count(), 8)
         self.assertTrue(ChangeRecord.objects.filter_by_design_object_id(Device.objects.first().pk).exists())
 
-    def test_top_level_list_merge_from_included_templates(self):
+    def test_merge_from_included_templates(self):
         """Test that top-level lists in templates loaded via include statements are properly merged."""
         job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
         job.run(dryrun=False, **self.data)
@@ -193,7 +193,7 @@ class TestDesignJob(DesignTestCase):
             }
         )
 
-    def test_nested_template_imports(self):
+    def test_merge_from_nested_templates(self):
         """Test that templates with nested imports are properly merged."""
         job = self.get_mocked_job(test_designs.NestedDesignJob)
         job.run(dryrun=False, **self.data)
