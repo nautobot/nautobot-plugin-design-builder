@@ -2,7 +2,7 @@
 
 import copy
 from unittest.mock import patch, Mock, ANY, MagicMock
-from pprint import pprint
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 import yaml
@@ -177,7 +177,6 @@ class TestDesignJob(DesignTestCase):
         job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
         rendered = job.render(self.data, test_designs.SimpleDesignIncludeMerge.Meta.design_file)
         merged_yaml = yaml.safe_load(rendered)
-        pprint(merged_yaml)
 
         self.assertDictEqual(
             merged_yaml,

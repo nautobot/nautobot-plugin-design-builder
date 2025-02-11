@@ -189,7 +189,6 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
 
         try:
             rendered = env.get_template(filename).render()
-            
             # split the rendered YAML into documents (separated by ---)
             yaml_docs = yaml.safe_load_all(rendered)
             
@@ -215,6 +214,7 @@ class DesignJob(Job, ABC):  # pylint: disable=too-many-instance-attributes
         """
         self.rendered = self.render(context, design_file)
         design = yaml.safe_load(self.rendered)
+        self.logger.info(design)
         self.designs[design_file] = design
 
         # no need to save the rendered content if yaml loaded
