@@ -175,7 +175,10 @@ class TestDesignJob(DesignTestCase):
     def test_top_level_list_merge_from_included_templates(self):
         """Test that top-level lists in templates loaded via include statements are properly merged."""
         job = self.get_mocked_job(test_designs.SimpleDesignIncludeMerge)
-        rendered = job.render(self.data, test_designs.SimpleDesignIncludeMerge.Meta.design_file)
+        job.run(dryrun=False, **self.data)
+
+        # Get the rendered YAML after job completes
+        rendered = job.rendered
         merged_yaml = yaml.safe_load(rendered)
 
         self.assertDictEqual(
