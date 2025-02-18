@@ -67,3 +67,10 @@ class TestChangeRecord(
 
     def test_list_objects_brief(self):
         """Brief is not supported for change records."""
+
+    def test_list_objects_depth_0(self):
+        """
+        Depth 0 is not supported for change records.
+        The core test checks that the response_data has only three fields: id/object_type/url. The
+        ChangeRecord model has more fields than that, so the test will fail.
+        """
