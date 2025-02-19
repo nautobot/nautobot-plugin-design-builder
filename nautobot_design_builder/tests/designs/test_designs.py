@@ -232,4 +232,5 @@ register_jobs(
     SimpleDesignDeploymentMode,
     SimpleDesignDeploymentModeMultipleObjects,
     SimpleDesignDeploymentModeUpdate,
+    SimpleDesignWithPostImplementation,
 )
