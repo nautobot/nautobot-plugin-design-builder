@@ -1,7 +1,6 @@
 """Utilities for setting up tests and test data."""
 
 from nautobot.extras.models import Status
-from nautobot.extras.utils import refresh_job_model_from_job_class
 from nautobot.extras.models import JobResult, Job
 from nautobot.tenancy.models import Tenant
 
