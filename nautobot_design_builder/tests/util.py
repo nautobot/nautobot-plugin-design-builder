@@ -1,7 +1,6 @@
 """Utilities for setting up tests and test data."""
 
 from nautobot.extras.models import Status
-from nautobot.extras.utils import refresh_job_model_from_job_class
 from nautobot.extras.models import JobResult, Job
 from nautobot.tenancy.models import Tenant
 
@@ -34,7 +33,7 @@ def create_test_view_data():
     ]
     for i, job_class in enumerate(job_classes, 1):
         # Core models
-        job, _ = refresh_job_model_from_job_class(Job, job_class)
+        job = Job.objects.get(module_name=job_class.__module__, job_class_name=job_class.__name__)
         job_result = JobResult.objects.create(name=f"Test Result {i}", job_model=job)
         object_created_by_job = Tenant.objects.create(name=f"Tenant {i}")
 

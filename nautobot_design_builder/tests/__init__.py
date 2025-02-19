@@ -9,7 +9,6 @@ from unittest.mock import PropertyMock, patch
 
 from django.test import TestCase
 
-from nautobot.extras.utils import refresh_job_model_from_job_class
 from nautobot.extras.models import Job, JobResult
 from nautobot_design_builder.design_job import DesignJob
 
@@ -36,7 +35,7 @@ class DesignTestCase(TestCase):
 
     def get_mocked_job(self, design_class: Type[DesignJob]):
         """Create an instance of design_class and properly mock request and job_result for testing."""
-        job_model, _ = refresh_job_model_from_job_class(Job, design_class)
+        job_model = Job.objects.get(module_name=design_class.__module__, job_class_name=design_class.__name__)
         job = design_class()
         job.job_result = JobResult.objects.create(
             name="Fake Job Result",

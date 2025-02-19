@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from nautobot.extras.models import Job as JobModel
-from nautobot.extras.utils import refresh_job_model_from_job_class
 from nautobot_design_builder.tests import DesignTestCase
 
 from .designs import test_designs
@@ -46,7 +45,7 @@ class TestDesign(BaseDesignTest):
             test_designs.IntegrationDesign,
         ]
         for design in designs:
-            job, _ = refresh_job_model_from_job_class(JobModel, design)
+            job = JobModel.objects.get(module_name=design.__module__, job_class_name=design.__name__)
             design = models.Design.objects.get(job_id=job.id)
             self.assertEqual(job.name, design.name)
 
